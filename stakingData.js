@@ -53,6 +53,8 @@ fs.writeFile("output/events.json", JSON.stringify(events), (err) =>
 // vault data
 const vaults = [];
 
+const stakers = [];
+
 for (let i = 0; i < events.length; i++) {
   let event = events[i];
   if (!event) continue;
@@ -72,6 +74,10 @@ for (let i = 0; i < events.length; i++) {
   let vault = vaults[vaultAddr];
   if (event.deposit || event.withdrawal) {
     let userAddr = event.user.id;
+    // make list of staking addresses
+    if (!stakers.includes(userAddr)) {
+      stakers.push(userAddr);
+    }
     if (!vault.stakers[userAddr]) {
       // if vault.stakers[userAddr] DNE, then create it
       vault.stakers[userAddr] = {
@@ -146,5 +152,9 @@ for (let i = 0; i < events.length; i++) {
 // save vaults data
 
 fs.writeFile("output/vaults.json", JSON.stringify(vaults), (err) =>
+  console.log(err)
+);
+
+fs.writeFile("output/stakers.json", JSON.stringify(stakers), (err) =>
   console.log(err)
 );
