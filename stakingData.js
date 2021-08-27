@@ -343,6 +343,20 @@ Object.keys(vaults).forEach((vaultAddr) => {
     bVaultId = parseInt(getVaultId(b.addr));
     return aVaultId - bVaultId;
   });
+  arr.forEach((v) => {
+    let vStakers = vaults[v.addr].stakers;
+    let newVStakers = [];
+    Object.keys(vStakers).forEach((stakerAddr) => {
+      stakerData = vStakers[stakerAddr];
+      newVStakers.push({
+        addr: stakerAddr,
+        token: v.ticker,
+        feesEarned: getFloatString(stakerData.feesEarned),
+        feesClaimed: getFloatString(stakerData.feesClaimed),
+      });
+    });
+    v.stakers = newVStakers;
+  });
 });
 
 fs.writeFile("./output/vaults.json", JSON.stringify(vaults), (err) =>
