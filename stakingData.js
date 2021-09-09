@@ -60,10 +60,10 @@ const getFloatString = (bigNum) => {
   }
   if (right.eq(new BN(0))) {
     rightString = "0";
-  } else if (rightString.substring(0, 2) == "00") {
-    rightString = "001";
+  } else if (rightString.substring(0, 6) == "000000") {
+    rightString = "000001";
   } else {
-    rightString = rightString.substring(0, 2);
+    rightString = rightString.substring(0, 6);
   }
   return `${left}.${rightString}`;
 };
@@ -304,11 +304,9 @@ Object.keys(vaults).forEach((vaultAddr) => {
       stakerData.stole = stakerData.feesClaimed.sub(stakerData.feesEarned);
       totalFeesLost = totalFeesLost.add(stakerData.stole);
       totalLuckyStakers += 1;
-      if (vaultAddr == "0x269616d549d7e8eaa82dfb17028d0b212d11232a") {
-        console.log("punk Lost", getFloatString(stakerData.stole));
-      }
     } else if (stakerData.feesClaimed.lt(stakerData.feesEarned)) {
       stakerData.owed = stakerData.feesEarned.sub(stakerData.feesClaimed);
+      stakerData.owedString = stakerData.owed.toString();
       totalFeesOwed = totalFeesOwed.add(stakerData.owed);
       totalStakersOwed += 1;
     }
@@ -353,9 +351,19 @@ Object.keys(vaults).forEach((vaultAddr) => {
         token: v.ticker,
         feesEarned: getFloatString(stakerData.feesEarned),
         feesClaimed: getFloatString(stakerData.feesClaimed),
+        feesOwed: getFloatString(stakerData.owed),
       });
     });
     v.stakers = newVStakers;
+    v.csv = v.stakers
+      .filter(
+        (s) =>
+          s.feesOwed &&
+          s.feesOwed != "0.0" &&
+          s.addr != "0x0b8ee2ee7d6f3bfb73c9ae2127558d1172b65fb1"
+      )
+      .map((s) => `${s.addr},${s.feesOwed}`)
+      .join(`\n`);
   });
 });
 
